@@ -143,8 +143,8 @@ end
       end
     end
 
-    if FUNCTIONS.key?(operator.to_sym)
-      function = FUNCTIONS[operator.to_sym]
+    if FUNCTIONS.key?(operator)
+      function = FUNCTIONS[operator]
       raise MVinl::ParserError, "Argument mismatch for #{operator}" if operands.size != function[:args].size
 
       # Map arguments to operands
@@ -155,7 +155,7 @@ end
       evaluate_pn(function[0], function[1..], new_context)
     else
       begin
-        operands.reduce(operator.to_sym)
+        operands.reduce(operator)
       rescue NoMethodError
         raise MVinl::ParserError, "Unknown operator: #{operator}"
       end
