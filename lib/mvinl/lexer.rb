@@ -71,7 +71,7 @@ module MVinl
       when :OPEN_PAREN then [:OPEN_PAREN, '(']
       when :CLOSE_PAREN
         unless Parser::STATE[:depth].positive?
-          raise UnexpectedTokenError, 'CLOSE_PARAM found winth no matching OPEN_PARAM'
+          raise UnexpectedTokenError, 'CLOSE_PARAM found with no matching OPEN_PARAM'
         end
 
         [:CLOSE_PAREN, ')']
