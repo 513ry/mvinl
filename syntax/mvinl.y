@@ -72,11 +72,11 @@ rule
     ;
   polish_notation_def
     : open_paren identifier args close_paren         { [val[1], *val[2]] }
-    | open_paren OPER args close_paren               { [val[1], *val[2]] }
+    | open_paren operator args close_paren           { [val[1], *val[2]] }
     ;
   lambda
     : open_paren identifier params close_paren       { evaluate_pn(val[1], val[2]) }
-    | open_paren OPER params close_paren             { evaluate_pn(val[1], val[2]) }
+    | open_paren operator params close_paren         { evaluate_pn(val[1], val[2]) }
     ;
   open_paren
     : OPEN_PAREN                                     { STATE[:depth] += 1 }
@@ -95,6 +95,9 @@ rule
     | params super_value                             { val[0] << val[1] }
     | params identifier                              { val[0] << val[1] }
     | params polish_notation                         { val[0] << val[1] }
+    ;
+  operator
+    : OPER                                           { val[0].to_sym }
     ;
   identifier
     : ID                                             { val[0].to_sym }
