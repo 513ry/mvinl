@@ -1,0 +1,26 @@
+*
+!*/
+!.gitignore
+
+# Package
+!README.md
+!LICENSE
+!.ruby-version
+!Gemfile
+!mvinl.gemspec
+!Rakefile
+!rakelib/[a-z]*.rake
+!edit/mvinl.vim
+
+# Executables
+!bin/imvnl
+
+# Library code
+!lib/mvinl.rb
+!lib/mvinl/[a-z]*.rb
+
+!syntax/mvinl.y
+
+# Spec
+!spec/[a-z]*.mvnl
+!spec/[a-z]*.rb

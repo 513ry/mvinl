@@ -1,0 +1,21 @@
+#
+#
+#
+# MVinl stack configuration
+
+# Definition with a single argument
+def (mins x (% x 60))
+
+# Definition with multiple arguments
+def (perc x n (/ (* x 100) n))
+
+@menu # First group runs as the initial state
+  Menu
+    New_Game: :state_next
+    Exit: :abord
+
+@game
+  Mouse
+  Board 3 (+ 1 (+ 1 (+ 1)))
+  Button "󰮱  Hello Vinl!"
+         line_height: (perc 2 8) padding: (* 2 4)
