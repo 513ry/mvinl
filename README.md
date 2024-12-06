@@ -15,6 +15,7 @@ gem install mvinl
 or build and install it from this repo if you have it downloaded
 
 ```
+reake build
 gem build
 gem install ./mvinl-0.1.0.gem
 ```
