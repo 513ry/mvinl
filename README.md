@@ -15,7 +15,7 @@ gem install mvinl
 or build and install it from this repo if you have it downloaded
 
 ```
-reake build
+rake build
 gem build
 gem install ./mvinl-0.1.0.gem
 ```
@@ -47,7 +47,7 @@ def (center x (/ x 2))
   Buttom (center 1920)
          (center 1080)
          "Hello, MVinl!"
-        font_size: 21     # END_TAG is optional
+         font_size: 21     # END_TAG is optional
 ```
 
 ## Contribute
