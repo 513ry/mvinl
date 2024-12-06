@@ -6,7 +6,7 @@ Copyright (c) 2024, Daniel Sierpiński All rights reserved.
 See Copyright Notice in mvnil.rb
 =end
 
-require_relative '../../syntax/mvinl.tab'
+require 'mvinl.tab'
 
 class MVinl::Parser < MVinl::Program
   def initialize(lexer, debug: false)
