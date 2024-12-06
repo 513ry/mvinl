@@ -27,7 +27,6 @@ rule
     : prop_id                                        { create_property(val[0]) }
     | prop_id positional_args                        { create_property(val[0], val[1]) }
     | prop_id positional_args keyword_args           { create_property(val[0], val[1], val[2]) }
-    | prop_id lambda                                 { create_property(val[0], val[1]) }
     ;
   prop_id
     : identifier                                     { STATE[:in_prop] = true; val[0] }
