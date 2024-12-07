@@ -7,22 +7,21 @@ require 'pry'
 
 GRAMMAR_FILE = 'syntax/mvinl.y'
 COMPILED_FILE = 'syntax/mvinl.tab.rb'
-
-gemspec = Gem::Specification.load 'mvinl.gemspec'
-gemfile = "#{gemspec.name}-#{gemspec.version}.gem"
+GEMSPEC = Gem::Specification.load 'mvinl.gemspec'
+GEMFILE = "#{gemspec.name}-#{gemspec.version}.gem".freeze
 
 task push: [:build] do
-  system('gem', 'push', "#{gemspec.name}-#{gemspec.version}.gem")
+  system('gem', 'push', GEMFILE)
 end
 
 task install: [:build] do
-  Gem.install(gemfile)
-  puts "Installed #{gemfile}"
+  Gem.install(GEMFILE)
+  puts "Installed #{GEMFILE}"
 end
 
 task build: [:compile] do
-  Gem::Package.build(gemspec)
-  puts "Build #{gemfile}"
+  Gem::Package.build(GEMSPEC)
+  puts "Build #{GEMFILE}"
 end
 
 task :compile do
