@@ -61,8 +61,12 @@ rule
   value
     : NUMBER                                         { val[0].to_i }
     | FLOAT                                          { val[0].to_f }
-    | STRING                                         { val[0] }
+    | string                                         { val[0] }
     | SYMBOL                                         { val[0].to_sym }
+    ;
+  string
+    : STRING                                         { val[0] }
+    | MULTILINE_STRING string                        { "#{val[0]} #{val[1]}" }
     ;
   function_def
     : DEF open_paren identifier args polish_notation_def close_paren

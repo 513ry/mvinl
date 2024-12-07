@@ -30,6 +30,7 @@ module MVinl
       GROUP: /@(#{ID_REGEX})/,
       FLOAT: /[+-]?\d+\.\d+/,
       NUMBER: /[+-]?\d+/,
+      MULTILINE_STRING: /"((?:\\.|[^"\\])*)"\s*\\\s*/,
       STRING: /"((?:\\.|[^"\\])*)"/,
       SYMBOL: /:(#{ID_REGEX})/,
       COMMENT: /#/,
@@ -103,6 +104,8 @@ module MVinl
         @in_group = true
         [:GROUP, @ss[1]]
       when :ID then [:ID, @ss.matched]
+      when :MULTILINE_STRING
+        [:MULTILINE_STRING, @ss[1]]
       when :NUMBER, :FLOAT, :STRING, :SYMBOL
         # Values can't be used outside an property or a lambda
         if !Parser::STATE[:in_prop] && !Parser::STATE[:depth].positive?
