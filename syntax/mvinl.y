@@ -12,6 +12,7 @@ rule
   program
     : /* empty */                                    { Hash.new }
     | program group                                  { val[0].merge(val[1]) }
+    | program properties                             { val[0].merge(val[1]) }
     | program function_def                           { val[0] }
     | program EOS                                    { val[0] }
     ;
