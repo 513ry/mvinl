@@ -9,7 +9,7 @@ COMPILED_FILE = 'syntax/mvinl.tab.rb'
 gemspec = Gem::Specification.load 'mvinl.gemspec'
 gemfile = "#{gemspec.name}-#{gemspec.version}.gem"
 
-task push: [:push] do
+task push: [:build] do
   system('gem', 'push', '-v', gemspec.version, gemspec.name)
 end
 
