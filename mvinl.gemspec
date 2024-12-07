@@ -26,7 +26,7 @@ Gem::Specification.new do |s|
   # Compile syntax file
   s.files.delete(GRAMMAR_FILE)
   s.files << COMPILED_FILE
-  s.require_paths = %w[lib bin s rakelib syntax]
+  s.require_paths = %w[lib syntax]
   s.executables << 'imvnl'
 
   s.add_dependency 'pp', '~> 0.6.2'
