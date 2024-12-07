@@ -60,6 +60,7 @@ rule
     ;
   value
     : NUMBER                                         { val[0].to_i }
+    | FLOAT                                          { val[0].to_f }
     | STRING                                         { val[0] }
     | SYMBOL                                         { val[0].to_sym }
     ;
