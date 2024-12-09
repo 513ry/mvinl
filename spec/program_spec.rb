@@ -33,55 +33,82 @@ describe MVinl, '#eval' do
     end
   end
 
+  context 'variables' do
+    it 'stores a single variable' do
+      MVinl.eval('!n 0')
+      expect(MVinl::Parser::VARIABLES[:n]).to be_truthy
+    end
+
+    it 'stores a two variables' do
+      MVinl.eval('!n 3 !m 6')
+      expect(MVinl::Parser::VARIABLES[:n] && MVinl::Parser::VARIABLES[:m]).to be_truthy
+    end
+
+    it 'stores a single variable with it\'s value' do
+      MVinl.eval('!n 5')
+      expect(MVinl::Parser::VARIABLES[:n]).to eq 5
+    end
+
+    it 'evaluates a single variable' do
+      result = MVinl.eval('!n 5 x n')
+      expect(result).to eq({ x: [[5], {}] })
+    end
+  end
+
   context 'functions' do
-    it 'Stores function definition with \'+\' OPER and no arguments' do
+    it 'stores function definition with \'+\' OPER and no arguments' do
       MVinl.eval('def (f (+ 1))')
       expect(MVinl::Parser::FUNCTIONS).to eq({ f: { args: [], body: [:+, 1] } })
     end
 
-    it 'Stores function definition with \'-\' OPER and no arguments' do
+    it 'stores function definition with \'-\' OPER and no arguments' do
       MVinl.eval('def (f (- 1))')
       expect(MVinl::Parser::FUNCTIONS).to eq({ f: { args: [], body: [:-, 1] } })
     end
 
-    it 'Stores function definition with \'*\' OPER and no arguments' do
+    it 'stores function definition with \'*\' OPER and no arguments' do
       MVinl.eval('def (f (* 1))')
       expect(MVinl::Parser::FUNCTIONS).to eq({ f: { args: [], body: [:*, 1] } })
     end
 
-    it 'Stores function definition with \'/\' OPER and no arguments' do
+    it 'stores function definition with \'/\' OPER and no arguments' do
       MVinl.eval('def (f (/ 1))')
       expect(MVinl::Parser::FUNCTIONS).to eq({ f: { args: [], body: [:/, 1] } })
     end
 
-    it 'Stores function definition with \'%\' OPER and no arguments' do
+    it 'stores function definition with \'%\' OPER and no arguments' do
       MVinl.eval('def (f (% 1))')
       expect(MVinl::Parser::FUNCTIONS).to eq({ f: { args: [], body: [:%, 1] } })
     end
 
-    it 'Stores function definition with a single argument' do
+    it 'stores function definition with a single argument' do
       MVinl.eval('def (f a (+ a a))')
       expect(MVinl::Parser::FUNCTIONS).to eq({ f: { args: %I[a], body: %I[+ a a] } })
     end
 
-    it 'Stores function definition with two arguments' do
+    it 'stores function definition with two arguments' do
       MVinl.eval('def (f a b (+ a b))')
       expect(MVinl::Parser::FUNCTIONS).to eq({ f: { args: %I[a b], body: %I[+ a b] } })
     end
 
-    it 'Evaluate anonimous function' do
+    it 'evaluate anonimous function' do
       result = MVinl.eval('x (+ 2 2)')
       expect(result).to eq({ x: [[4], {}] })
     end
 
-    it 'Evaluate function' do
+    it 'evaluate function' do
       result = MVinl.eval('def (foo (+ 5)) x (foo)')
       expect(result).to eq({ x: [[5], {}] })
     end
 
-    it 'Evaluate function calling another function' do
+    it 'evaluate function calling another function' do
       result = MVinl.eval('def (foo (+ 5)) def (bar (foo)) x (bar)')
       expect(result).to eq({ x: [[5], {}] })
+    end
+
+    it 'evaluate function inside a variable' do
+      MVinl.eval('def (foo (+ 7)) !n (foo)')
+      expect(MVinl::Parser::VARIABLES[:n]).to eq 7
     end
   end
 end
