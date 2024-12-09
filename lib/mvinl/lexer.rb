@@ -55,7 +55,7 @@ module MVinl
 
       # Check if variable name been used
       MVinl::Parser::VARIABLES.each_key do |var_name|
-        return [:VARIABLE_CALL, @ss.matched] if @ss.scan var_name
+        return [:VARIABLE_CALL, @ss.matched] if @ss.scan var_name.to_s
       end
 
       TOKENS.each do |type, regex|

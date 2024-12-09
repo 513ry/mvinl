@@ -21,7 +21,7 @@ rule
     : var_def_name super_value                       { define_variable(val[0], val[1]) }
     ;
   var_def_name
-    : VARIABLE                                       { STATE[:in_var] = true; val[0] }
+    : VARIABLE                                       { STATE[:in_var] = true; val[0].to_sym }
     ;
   group
     : GROUP properties                               { {val[0].to_sym => create_group(val[1])} }
@@ -68,7 +68,7 @@ rule
     | var_name                                       { val[0] }
     ;
   var_name
-    : VARIABLE_CALL                                  { evaluate_id(val[0]) }
+    : VARIABLE_CALL                                  { evaluate_id(val[0].to_sym) }
     ;
   value
     : NUMBER                                         { val[0].to_i }
