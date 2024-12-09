@@ -1,6 +1,6 @@
 # frozen-string-literal: true
 
-=begin engine.rb
+=begin lexer.rb
 Copyright (c) 2024, Daniel Sierpiński All rights reserved.
 
 See Copyright Notice in mvnil.rb
@@ -28,6 +28,7 @@ module MVinl
       KEYWORD_ARG: /(#{ID_REGEX}):/,
       ID: ID_REGEX,
       GROUP: /@(#{ID_REGEX})/,
+      VARIABLE: /!(#{ID_REGEX})/,
       FLOAT: /[+-]?\d+\.\d+/,
       NUMBER: /[+-]?\d+/,
       MULTILINE_STRING: /"((?:\\.|[^"\\])*)"\s*\\\s*/,
@@ -51,6 +52,11 @@ module MVinl
 
     def next_token
       return process_eos if @ss.eos?
+
+      # Check if variable name been used
+      MVinl::Parser::VARIABLES.each_key do |var_name|
+        return [:VARIABLE_CALL, @ss.matched] if @ss.scan var_name
+      end
 
       TOKENS.each do |type, regex|
         if @ss.scan regex
@@ -103,15 +109,14 @@ module MVinl
 
         @in_group = true
         [:GROUP, @ss[1]]
+      when :VARIABLE then [:VARIABLE, @ss[1]]
       when :ID then [:ID, @ss.matched]
-      when :MULTILINE_STRING
-        [:MULTILINE_STRING, @ss[1]]
-      when :NUMBER, :FLOAT, :STRING, :SYMBOL
+      when :NUMBER, :FLOAT, :STRING, :SYMBOL, :MULTILINE_STRING
         # Values can't be used outside an property or a lambda
-        if !Parser::STATE[:in_prop] && !Parser::STATE[:depth].positive?
+        if !Parser::STATE[:in_prop] && !Parser::STATE[:depth].positive? && !Parser::STATE[:in_var]
           raise UnexpectedTokenError, "Looking for ID or OPEN_PAREN but found #{@last_type}"
         elsif !Parser::STATE[:in_keyword_arg] && Parser::STATE[:keyword_arg_depth].positive? &&
-            !Parser::STATE[:depth].positive?
+              !Parser::STATE[:depth].positive? && !Parser::STATE[:in_var]
           raise UnexpectedTokenError, "Looking for END_TAG or KEYWORD_ARG but found #{@last_type}"
         end
 

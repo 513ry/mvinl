@@ -5,7 +5,7 @@
  *
  * See Copyright Notice in mvnil.rb
  */
- 
+
 class MVinl::Program
 options no_result_var
 rule
@@ -13,8 +13,15 @@ rule
     : /* empty */                                    { Hash.new }
     | program group                                  { val[0].merge(val[1]) }
     | program properties                             { val[0].merge(val[1]) }
+    | program variable_def                           { val[0] }
     | program function_def                           { val[0] }
     | program EOS                                    { val[0] }
+    ;
+  variable_def
+    : var_def_name super_value                       { define_variable(val[0], val[1]) }
+    ;
+  var_def_name
+    : VARIABLE                                       { STATE[:in_var] = true; val[0] }
     ;
   group
     : GROUP properties                               { {val[0].to_sym => create_group(val[1])} }
@@ -58,6 +65,10 @@ rule
   super_value
     : value                                          { val[0] }
     | lambda                                         { val[0] }
+    | var_name                                       { val[0] }
+    ;
+  var_name
+    : VARIABLE_CALL                                  { evaluate_id(val[0]) }
     ;
   value
     : NUMBER                                         { val[0].to_i }
@@ -112,8 +123,10 @@ end
 ---- inner
 
   FUNCTIONS = {}
+  VARIABLES = {}
   STATE = {
     in_prop: false,
+    in_var: false,
     in_keyword_arg: false,
     keyword_arg_depth: 0,
     depth: 0
@@ -132,9 +145,20 @@ end
     properties ||  Hash.new
   end
 
+
+  def define_variable(name, value)
+    STATE[:in_var] = false
+    VARIABLES[name] = value
+    value
+  end
+
   def define_function(name, args, body)
   FUNCTIONS[name.to_sym] = {args: args, body: body}
     nil
+  end
+
+  def evaluate_id(name)
+    VARIABLES[name] || raise(MVinl::ParserError, "Unknown identifier '#{name}'")
   end
 
   def evaluate_pn(operator, operands, context = {})
