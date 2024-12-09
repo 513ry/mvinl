@@ -1,6 +1,6 @@
 # frozen-string-literal: true
 
-=begin engine.rb
+=begin mvinl.rb
 Copyright (c) 2018, 2024, Daniel Sierpiński All rights reserved.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy

@@ -1,6 +1,6 @@
 # frozen-string-literal: true
 
-=begin engine.rb
+=begin parser.rb
 Copyright (c) 2024, Daniel Sierpiński All rights reserved.
 
 See Copyright Notice in mvnil.rb
