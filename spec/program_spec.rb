@@ -70,18 +70,18 @@ describe MVinl, '#eval' do
     end
 
     it 'Evaluate anonimous function' do
-      result = MVinl.eval('@x x (+ 2 2)')
-      expect(result).to eq({ x: { x: [[4], {}] } })
+      result = MVinl.eval('x (+ 2 2)')
+      expect(result).to eq({ x: [[4], {}] })
     end
 
     it 'Evaluate function' do
-      result = MVinl.eval('def (foo (+ 5)) @x x (foo)')
-      expect(result).to eq({ x: { x: [[5], {}] } })
+      result = MVinl.eval('def (foo (+ 5)) x (foo)')
+      expect(result).to eq({ x: [[5], {}] })
     end
 
     it 'Evaluate function calling another function' do
-      result = MVinl.eval('def (foo (+ 5)) def (bar (foo)) @x x (bar)')
-      expect(result).to eq({ x: { x: [[5], {}] } })
+      result = MVinl.eval('def (foo (+ 5)) def (bar (foo)) x (bar)')
+      expect(result).to eq({ x: [[5], {}] })
     end
   end
 end
