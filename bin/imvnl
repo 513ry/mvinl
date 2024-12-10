@@ -27,14 +27,16 @@ require 'readline'
 require 'pry'
 require 'mvinl/lexer'
 require 'mvinl/parser'
+require 'mvinl/context'
 require 'mvinl/info'
 
 PSL = "mvnl(#{MVinl::Version})".freeze
 PS1 = "#{PSL}>".freeze
 
 module MVinl::REPL
-  LEXER = MVinl::Lexer.new('')
-  PARSER = MVinl::Parser.new(LEXER)
+  CONTEXT = MVinl::Context.new
+  LEXER = MVinl::Lexer.new(CONTEXT, '')
+  PARSER = MVinl::Parser.new(LEXER, CONTEXT)
 
   def self.run
     while (input = Readline.readline("#{PS1} ", true))

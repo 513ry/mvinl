@@ -8,13 +8,23 @@ See Copyright Notice in mvnil.rb
 
 require 'mvinl.tab'
 
+# Generated parser class
 class MVinl::Parser < MVinl::Program
-  def initialize(lexer, debug: false)
-    @yydebug = debug
+  def initialize(lexer, context, debug: false)
     @lexer = lexer
+    @context = context
+    @yydebug = debug
     @tokens = []
     @done = false
     super()
+  end
+
+  def parse
+    do_parse
+  end
+
+  def feed(input)
+    @lexer.feed input
   end
 
   def next_token
@@ -35,9 +45,5 @@ class MVinl::Parser < MVinl::Program
 
   def parsing_done?
     @done && @tokens.empty?
-  end
-
-  def parse
-    do_parse
   end
 end

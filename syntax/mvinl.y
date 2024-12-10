@@ -21,7 +21,7 @@ rule
     : var_def_name super_value                       { define_variable(val[0], val[1]) }
     ;
   var_def_name
-    : VARIABLE                                       { STATE[:in_var] = true; val[0].to_sym }
+    : VARIABLE                                       { @context.state[:in_var] = true; val[0].to_sym }
     ;
   group
     : GROUP properties                               { {val[0].to_sym => create_group(val[1])} }
@@ -37,7 +37,7 @@ rule
     | prop_id positional_args keyword_args           { create_property(val[0], val[1], val[2]) }
     ;
   prop_id
-    : identifier                                     { STATE[:in_prop] = true; val[0] }
+    : identifier                                     { @context.state[:in_prop] = true; val[0] }
     ;
   positional_args
     : /* empty */                                    { Array.new }
@@ -47,28 +47,25 @@ rule
     : /* empty */                                    { Hash.new }
     | keyword_args keyword_arg
       {
-	STATE[:keyword_arg_depth] = 0
+	@context.state[:keyword_arg_depth] = 0
 	val[0].merge(val[1])
       }
     ;
   keyword_arg
     : keyword_arg_id super_value
       {
-	STATE[:in_keyword_arg] = false
-	STATE[:keyword_arg_depth] += 1
+	@context.state[:in_keyword_arg] = false
+	@context.state[:keyword_arg_depth] += 1
 	{val[0].to_sym => val[1]}
       }
     ;
   keyword_arg_id
-    : KEYWORD_ARG                                    { STATE[:in_keyword_arg] = true; val[0] }
+    : KEYWORD_ARG                                    { @context.state[:in_keyword_arg] = true; val[0] }
     ;
   super_value
     : value                                          { val[0] }
     | lambda                                         { val[0] }
-    | var_name                                       { val[0] }
-    ;
-  var_name
-    : VARIABLE_CALL                                  { evaluate_id(val[0].to_sym) }
+    | VARIABLE_CALL                                  { val[0] }
     ;
   value
     : NUMBER                                         { val[0].to_i }
@@ -95,10 +92,10 @@ rule
     | open_paren operator params close_paren         { evaluate_pn(val[1], val[2]) }
     ;
   open_paren
-    : OPEN_PAREN                                     { STATE[:depth] += 1 }
+    : OPEN_PAREN                                     { @context.state[:depth] += 1 }
     ;
   close_paren
-    : CLOSE_PAREN                                    { STATE[:depth] -= 1 }
+    : CLOSE_PAREN                                    { @context.state[:depth] -= 1 }
     ;
   args
     : /* empty */                                    { Array.new }
@@ -121,23 +118,12 @@ rule
 end
 
 ---- inner
-
-  FUNCTIONS = {}
-  VARIABLES = {}
-  STATE = {
-    in_prop: false,
-    in_var: false,
-    in_keyword_arg: false,
-    keyword_arg_depth: 0,
-    depth: 0
-  }
-
   class MVinl::ParserError < StandardError; end
 
   private
 
   def create_property(id, positional_args = [], keyword_args = {})
-    STATE[:in_prop] = false
+    @context.state[:in_prop] = false
     {id => [positional_args, keyword_args]}
   end
 
@@ -147,18 +133,14 @@ end
 
 
   def define_variable(name, value)
-    STATE[:in_var] = false
-    VARIABLES[name] = value
+    @context.state[:in_var] = false
+    @context.variables[name] = value
     value
   end
 
   def define_function(name, args, body)
-  FUNCTIONS[name.to_sym] = {args: args, body: body}
+  @context.functions[name.to_sym] = {args: args, body: body}
     nil
-  end
-
-  def evaluate_id(name)
-    VARIABLES[name] || raise(MVinl::ParserError, "Unknown identifier '#{name}'")
   end
 
   def evaluate_pn(operator, operands, context = {})
@@ -172,8 +154,8 @@ end
       end
     end
 
-    if FUNCTIONS.key?(operator)
-      function = FUNCTIONS[operator]
+    if @context.functions.key?(operator)
+      function = @context.functions[operator]
       raise MVinl::ParserError, "Argument mismatch for #{operator}" if operands.size != function[:args].size
 
       # Map arguments to operands

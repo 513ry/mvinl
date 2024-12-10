@@ -24,14 +24,27 @@ THE SOFTWARE.
 
 require 'mvinl/parser'
 require 'mvinl/lexer'
+require 'mvinl/context'
 
+# Library entry point
 module MVinl
+  @context = Context.new
+  @parser = Parser.new(Lexer.new(@context, ''), @context)
+
   def self.eval(input)
-    parser = Parser.new(Lexer.new(input))
-    parser.parse
+    @parser.feed input
+    @parser.parse
   end
 
   def self.eval_from_file(path)
     self.eval File.read(path)
+  end
+
+  def self.context
+    @context
+  end
+
+  def self.reset
+    @context.reset
   end
 end

@@ -39,7 +39,8 @@ module MVinl
       END_TAG: /\./
     }.freeze
 
-    def initialize(input)
+    def initialize(context, input = '')
+      @context = context
       @ss = StringScanner.new(input)
       @args_n = 0
       @in_group = false
@@ -54,8 +55,8 @@ module MVinl
       return process_eos if @ss.eos?
 
       # Check if variable name been used
-      MVinl::Parser::VARIABLES.each_key do |var_name|
-        return [:VARIABLE_CALL, @ss.matched] if @ss.scan var_name.to_s
+      @context.variables.each_key do |var_name|
+        return [:VARIABLE_CALL, @context.variables[var_name]] if @ss.scan(/\A#{Regexp.escape var_name.to_s}\b/)
       end
 
       TOKENS.each do |type, regex|
@@ -78,13 +79,13 @@ module MVinl
         next_token
       when :OPEN_PAREN then [:OPEN_PAREN, '(']
       when :CLOSE_PAREN
-        unless Parser::STATE[:depth].positive?
+        unless @context.state[:depth].positive?
           raise UnexpectedTokenError, 'CLOSE_PARAM found with no matching OPEN_PARAM'
         end
 
         [:CLOSE_PAREN, ')']
       when :OPER
-        unless Parser::STATE[:depth].positive?
+        unless @context.state[:depth].positive?
           raise UnexpectedTokenError, 'OPER found with no matching OPEN_PARAM'
         end
 
@@ -94,16 +95,16 @@ module MVinl
 
         [:KEYWORD, @ss.matched]
       when :KEYWORD_ARG
-        if !Parser::STATE[:in_prop]
+        if !@context.state[:in_prop]
           raise UnexpectedTokenError, 'Looking for identifier but found KEYWORD_ARG'
-        elsif Parser::STATE[:in_keyword_arg]
+        elsif @context.state[:in_keyword_arg]
           raise UnexpectedTokenError, 'Looking for a keyword argument value but found KEYWORD_ARG'
         end
 
         [:KEYWORD_ARG, @ss[1]]
       when :GROUP
         # Group gets canceled whenever encountered another group id or a matching end tag
-        if Parser::STATE[:in_keyword_arg]
+        if @context.state[:in_keyword_arg]
           raise UnexpectedTokenError, 'Looking for a keyword argument value but found GROUP'
         end
 
@@ -113,10 +114,10 @@ module MVinl
       when :ID then [:ID, @ss.matched]
       when :NUMBER, :FLOAT, :STRING, :SYMBOL, :MULTILINE_STRING
         # Values can't be used outside an property or a lambda
-        if !Parser::STATE[:in_prop] && !Parser::STATE[:depth].positive? && !Parser::STATE[:in_var]
+        if !@context.state[:in_prop] && !@context.state[:depth].positive? && !@context.state[:in_var]
           raise UnexpectedTokenError, "Looking for ID or OPEN_PAREN but found #{@last_type}"
-        elsif !Parser::STATE[:in_keyword_arg] && Parser::STATE[:keyword_arg_depth].positive? &&
-              !Parser::STATE[:depth].positive? && !Parser::STATE[:in_var]
+        elsif !@context.state[:in_keyword_arg] && @context.state[:keyword_arg_depth].positive? &&
+              !@context.state[:depth].positive? && !@context.state[:in_var]
           raise UnexpectedTokenError, "Looking for END_TAG or KEYWORD_ARG but found #{@last_type}"
         end
 
@@ -145,8 +146,8 @@ module MVinl
 
       # Auto end properties
       lookahead = @ss.check(/\A(?:#{TOKENS[:GROUP]}|#{TOKENS[:ID]}$|#{TOKENS[:END_TAG]}|#{TOKENS[:NEW_LINE]})/)
-      warn "Continue? in_prop?: #{Parser::STATE[:in_prop].inspect}, lookahead: #{lookahead.inspect}"
-      Parser::STATE[:in_prop] ? !lookahead : true
+      warn "Continue? in_prop?: #{@context.state[:in_prop].inspect}, lookahead: #{lookahead.inspect}"
+      @context.state[:in_prop] ? !lookahead : true
     end
 
     # Move the cursor to the next new line tag
