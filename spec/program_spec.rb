@@ -2,6 +2,7 @@
 
 require_relative 'spec_helper'
 require 'mvinl'
+require 'pry'
 
 describe MVinl, '#eval' do
   context 'no input' do
@@ -36,15 +37,15 @@ describe MVinl, '#eval' do
   context 'variables' do
     it 'stores a single variable' do
       MVinl.eval('!n 0')
-      expect(MVinl::Parser::VARIABLES[:n]).to be_truthy
+      expect(MVinl.context.variables[:n]).to be_truthy
     end
     it 'stores a two variables' do
       MVinl.eval('!n 3 !m 6')
-      expect(MVinl::Parser::VARIABLES[:n] && MVinl::Parser::VARIABLES[:m]).to be_truthy
+      expect(MVinl.context.variables[:n] && MVinl.context.variables[:m]).to be_truthy
     end
     it 'stores a single variable with it\'s value' do
       MVinl.eval('!n 5')
-      expect(MVinl::Parser::VARIABLES[:n]).to eq 5
+      expect(MVinl.context.variables[:n]).to eq 5
     end
     it 'evaluates a single variable' do
       result = MVinl.eval('!n 5 x n')
@@ -55,47 +56,61 @@ describe MVinl, '#eval' do
   context 'functions' do
     it 'stores function definition with \'+\' OPER and no arguments' do
       MVinl.eval('def (f (+ 1))')
-      expect(MVinl::Parser::FUNCTIONS).to eq({ f: { args: [], body: [:+, 1] } })
+      expect(MVinl.context.functions).to eq({ f: { args: [], body: [:+, 1] } })
     end
     it 'stores function definition with \'-\' OPER and no arguments' do
       MVinl.eval('def (f (- 1))')
-      expect(MVinl::Parser::FUNCTIONS).to eq({ f: { args: [], body: [:-, 1] } })
+      expect(MVinl.context.functions).to eq({ f: { args: [], body: [:-, 1] } })
     end
     it 'stores function definition with \'*\' OPER and no arguments' do
       MVinl.eval('def (f (* 1))')
-      expect(MVinl::Parser::FUNCTIONS).to eq({ f: { args: [], body: [:*, 1] } })
+      expect(MVinl.context.functions).to eq({ f: { args: [], body: [:*, 1] } })
     end
     it 'stores function definition with \'/\' OPER and no arguments' do
       MVinl.eval('def (f (/ 1))')
-      expect(MVinl::Parser::FUNCTIONS).to eq({ f: { args: [], body: [:/, 1] } })
+      expect(MVinl.context.functions).to eq({ f: { args: [], body: [:/, 1] } })
     end
     it 'stores function definition with \'%\' OPER and no arguments' do
       MVinl.eval('def (f (% 1))')
-      expect(MVinl::Parser::FUNCTIONS).to eq({ f: { args: [], body: [:%, 1] } })
+      expect(MVinl.context.functions).to eq({ f: { args: [], body: [:%, 1] } })
     end
     it 'stores function definition with a single argument' do
       MVinl.eval('def (f a (+ a a))')
-      expect(MVinl::Parser::FUNCTIONS).to eq({ f: { args: %I[a], body: %I[+ a a] } })
+      expect(MVinl.context.functions).to eq({ f: { args: %I[a], body: %I[+ a a] } })
     end
     it 'stores function definition with two arguments' do
       MVinl.eval('def (f a b (+ a b))')
-      expect(MVinl::Parser::FUNCTIONS).to eq({ f: { args: %I[a b], body: %I[+ a b] } })
+      expect(MVinl.context.functions).to eq({ f: { args: %I[a b], body: %I[+ a b] } })
     end
-    it 'evaluate anonimous function' do
+    it 'evaluates anonimous function' do
       result = MVinl.eval('x (+ 2 2)')
       expect(result).to eq({ x: [[4], {}] })
     end
-    it 'evaluate function' do
+    it 'evaluates function' do
       result = MVinl.eval('def (foo (+ 5)) x (foo)')
       expect(result).to eq({ x: [[5], {}] })
     end
-    it 'evaluate function calling another function' do
+    it 'evaluates function calling another function' do
       result = MVinl.eval('def (foo (+ 5)) def (bar (foo)) x (bar)')
       expect(result).to eq({ x: [[5], {}] })
     end
-    it 'evaluate function inside a variable' do
+    it 'evaluates function inside a variable' do
       MVinl.eval('def (foo (+ 7)) !n (foo)')
-      expect(MVinl::Parser::VARIABLES[:n]).to eq 7
+      expect(MVinl.context.variables[:n]).to eq 7
+    end
+  end
+end
+
+describe MVinl, '#eval_from_file' do
+  context 'stack example' do
+    it 'evaluates a basic example' do
+      MVinl.reset
+      result = MVinl.eval_from_file('spec/stack.mvnl')
+      expect(result).to eq({ menu: { Menu: [[], { New_Game: :state_next, Exit: :abord }] },
+                             game: { Mouse: [[], {}], Board: [[3, 3], {}],
+                                     Button: [['󰮱  Hello Vinl!'], {
+                                       line_height: 25, padding: 8
+                                     }] } })
     end
   end
 end
