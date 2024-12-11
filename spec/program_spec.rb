@@ -39,7 +39,7 @@ describe MVinl, '#eval' do
       MVinl.eval('!n 0')
       expect(MVinl.context.variables[:n]).to be_truthy
     end
-    it 'stores a two variables' do
+    it 'stores two variables' do
       MVinl.eval('!n 3 !m 6')
       expect(MVinl.context.variables[:n] && MVinl.context.variables[:m]).to be_truthy
     end
