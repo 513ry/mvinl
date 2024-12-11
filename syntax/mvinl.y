@@ -18,7 +18,11 @@ rule
     | program EOS                                    { val[0] }
     ;
   variable_def
-    : var_def_name super_value                       { define_variable(val[0], val[1]) }
+    : var_def_name super_value
+      {
+	@context.define_variable(val[0], val[1]) ||
+	  raise(MVinl::ParserError, "Trying to define a reserved word '#{val[0]}'")
+      }
     ;
   var_def_name
     : VARIABLE                                       { @context.state[:in_var] = true; val[0].to_sym }
@@ -129,13 +133,6 @@ end
 
   def create_group(properties)
     properties ||  Hash.new
-  end
-
-
-  def define_variable(name, value)
-    @context.state[:in_var] = false
-    @context.variables[name] = value
-    value
   end
 
   def define_function(name, args, body)

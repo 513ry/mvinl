@@ -5,6 +5,8 @@ module MVinl
   class Context
     attr_accessor :variables, :functions, :state
 
+    RESERVED = %I[def]
+
     def initialize
       reset
     end
@@ -19,6 +21,15 @@ module MVinl
         keyword_arg_depth: 0,
         depth: 0
       }
+    end
+
+    def define_variable(name, value)
+      if RESERVED.include? name
+        false
+      else
+        @state[:in_var] = false
+        @variables[name] = value
+      end
     end
   end
 end

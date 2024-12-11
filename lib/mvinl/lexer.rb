@@ -17,10 +17,8 @@ module MVinl
 
     ID_REGEX = /[a-zA-Z_][a-zA-Z0-9_]*/
 
-    RESERVED = %w[def as style].freeze
-
     TOKENS = {
-      KEYWORD: /#{RESERVED[0]}|#{RESERVED[1]}|#{RESERVED[2]}/,
+      KEYWORD: Regexp.union(Context::RESERVED),
       OPEN_PAREN: /\(/,
       CLOSE_PAREN: /\)/,
       NEW_LINE: /(?:[ \t]*(?:\r?\n)[ \t]*)+/,
