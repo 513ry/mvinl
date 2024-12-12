@@ -21,7 +21,7 @@ rule
     : var_def_name super_value
       {
 	@context.define_variable(val[0], val[1]) ||
-	  raise(MVinl::ParserError, "Trying to define a reserved word '#{val[0]}'")
+	  raise(MVinl::ParserError, "Trying to define a reserved word '#{val[0]}' as a variable")
       }
     ;
   var_def_name
@@ -84,7 +84,7 @@ rule
   function_def
     : DEF open_paren identifier args polish_notation_def close_paren
       {
-	  define_function(val[2], val[3], val[4])
+	@context.define_function(val[2], val[3], val[4])
       }
     ;
   polish_notation_def
@@ -133,11 +133,6 @@ end
 
   def create_group(properties)
     properties ||  Hash.new
-  end
-
-  def define_function(name, args, body)
-  @context.functions[name.to_sym] = {args: args, body: body}
-    nil
   end
 
   def evaluate_pn(operator, operands, context = {})

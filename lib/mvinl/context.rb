@@ -23,6 +23,10 @@ module MVinl
       }
     end
 
+    def define_function(name, args, body)
+      @functions[name] = { args: args, body: body }
+    end
+
     def define_variable(name, value)
       if RESERVED.include? name
         false
