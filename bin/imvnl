@@ -24,7 +24,6 @@ THE SOFTWARE.
 =end
 
 require 'readline'
-require 'pry'
 require 'mvinl/context'
 require 'mvinl/lexer'
 require 'mvinl/parser'
@@ -42,7 +41,7 @@ module MVinl::REPL
     while (input = Readline.readline("#{PS1} ", true))
       Readline::HISTORY.pop if input.strip.empty?
 
-      if input == '^' || input == 'exit'
+      if ['^', 'exit'].include? input
         PARSER.finalize!
         break if PARSER.parsing_done?
       else
