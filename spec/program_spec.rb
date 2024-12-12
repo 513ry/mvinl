@@ -2,7 +2,6 @@
 
 require_relative 'spec_helper'
 require 'mvinl'
-require 'pry'
 
 describe MVinl, '#eval' do
   context 'no input' do
@@ -111,6 +110,16 @@ describe MVinl, '#eval_from_file' do
                                      Button: [['󰮱  Hello Vinl!'], {
                                        line_height: 25, padding: 8
                                      }] } })
+    end
+    it 'evaluates an example with variables' do
+      MVinl.reset
+      result = MVinl.eval_from_file('spec/vars.mvnl')
+      expect(result).to eq({ x: [[5], { fun: 10 }] })
+    end
+    it 'function respects variable change' do
+      MVinl.reset
+      result = MVinl.eval_from_file('spec/complex_vars.mvnl')
+      expect(result).to eq({ x: [[20], {}] })
     end
   end
 end
