@@ -21,6 +21,9 @@ class MVinl::Parser < MVinl::Program
 
   def parse
     do_parse
+  rescue Racc::ParseError => e
+    puts "Parsing error at #{@context.state[:lines]}: #{e.message}"
+    nil
   end
 
   def feed(input)

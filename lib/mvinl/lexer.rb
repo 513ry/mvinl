@@ -16,7 +16,6 @@ module MVinl
     attr_reader :eos
 
     ID_REGEX = /[a-zA-Z_][a-zA-Z0-9_]*/
-
     TOKENS = {
       KEYWORD: Regexp.union(Context::RESERVED),
       OPEN_PAREN: /\(/,
@@ -65,6 +64,7 @@ module MVinl
       end
       case @last_type
       when :NEW_LINE
+        @context.state[:lines] += 1
         return next_token if continuation_line?
 
         [:END_TAG, "\n"]

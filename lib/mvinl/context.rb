@@ -19,6 +19,7 @@ module MVinl
         in_var: false,
         in_keyword_arg: false,
         keyword_arg_depth: 0,
+        lines: 0,
         depth: 0
       }
     end
