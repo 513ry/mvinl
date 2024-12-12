@@ -53,7 +53,7 @@ module MVinl
 
       # Check if variable name been used
       @context.variables.each_key do |var_name|
-        return [:VARIABLE_CALL, @context.variables[var_name]] if @ss.scan(/\A#{Regexp.escape var_name.to_s}\b/)
+        return [:VARIABLE_CALL, var_name] if @ss.scan(/\A#{Regexp.escape var_name.to_s}\b/)
       end
 
       TOKENS.each do |type, regex|

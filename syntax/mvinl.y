@@ -69,13 +69,13 @@ rule
   super_value
     : value                                          { val[0] }
     | lambda                                         { val[0] }
+    | VARIABLE_CALL                                  { @context.variables[val[0]] }
     ;
   value
     : NUMBER                                         { val[0].to_i }
     | FLOAT                                          { val[0].to_f }
     | string                                         { val[0] }
     | SYMBOL                                         { val[0].to_sym }
-    | VARIABLE_CALL                                  { val[0] }
     ;
   string
     : STRING                                         { val[0] }
@@ -105,6 +105,7 @@ rule
     : /* empty */                                    { Array.new }
     | args identifier                                { val[0] << val[1] }
     | args value                                     { val[0] << val[1] }
+    | args VARIABLE_CALL                             { val[0] << { eval: val[1] } }
     | args polish_notation_def                       { val[0] << val[1] }
     ;
   params
@@ -135,6 +136,10 @@ end
     properties ||  Hash.new
   end
 
+  def evaluate_var(var_name)
+    @context.variables[var_name]
+  end
+
   def evaluate_pn(operator, operands, context = {})
     operands.map! do |op|
       if op.is_a?(Array)
@@ -154,6 +159,14 @@ end
       new_context = function[:args].zip(operands).to_h
       # Replace symbols in body with context values
       function = replace_symbols(function[:body], new_context)
+      # Evaluate variables
+      function.map! do |e|
+        if e.is_a? Hash
+          evaluate_var e[:eval]
+	else
+	  e
+	end
+      end
       # Recursive evaluation
       evaluate_pn(function[0], function[1..], new_context)
     else
