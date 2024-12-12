@@ -69,13 +69,13 @@ rule
   super_value
     : value                                          { val[0] }
     | lambda                                         { val[0] }
-    | VARIABLE_CALL                                  { val[0] }
     ;
   value
     : NUMBER                                         { val[0].to_i }
     | FLOAT                                          { val[0].to_f }
     | string                                         { val[0] }
     | SYMBOL                                         { val[0].to_sym }
+    | VARIABLE_CALL                                  { val[0] }
     ;
   string
     : STRING                                         { val[0] }
