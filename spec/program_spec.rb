@@ -121,5 +121,10 @@ describe MVinl, '#eval_from_file' do
       result = MVinl.eval_from_file('spec/complex_vars.mvnl')
       expect(result).to eq({ x: [[20], {}] })
     end
+    it 'evaluates multiline string' do
+      MVinl.reset
+      result = MVinl.eval_from_file('spec/multiline_string.mvnl')
+      expect(result).to eq({ x: [['Hello, MVinl !'], {}] })
+    end
   end
 end
