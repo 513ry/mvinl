@@ -32,11 +32,14 @@ require 'mvinl/info'
 module MVinl::REPL
   PSL = "mvnl(#{MVinl::Version})".freeze
   PS1 = "#{PSL}>".freeze
+  HISTORY_FILE = File.expand_path('.imvnl_history')
   CONTEXT = MVinl::Context.new
   LEXER = MVinl::Lexer.new(CONTEXT, '')
   PARSER = MVinl::Parser.new(LEXER, CONTEXT)
 
   def self.run
+    load_history
+
     while (input = Readline.readline("#{PS1} ", true))
       Readline::HISTORY.pop if input.strip.empty?
 
@@ -58,6 +61,22 @@ module MVinl::REPL
       rescue Racc::ParseError => e
         warn e.message
       end
+    end
+
+    save_history
+  end
+
+  private_class_method def self.load_history
+    return unless File.exist? HISTORY_FILE
+
+    File.foreach(HISTORY_FILE) do |line|
+      Readline::HISTORY << line.chomp
+    end
+  end
+
+  private_class_method def self.save_history
+    File.open(HISTORY_FILE, 'w') do |file|
+      Readline::HISTORY.each { |entry| file.puts(entry) }
     end
   end
 end
