@@ -1,7 +1,6 @@
 # frozen-string-literal: true
 
 require_relative 'spec_helper'
-require 'mvinl'
 
 describe MVinl, '#eval' do
   context 'no input' do
