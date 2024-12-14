@@ -51,6 +51,17 @@ describe MVinl, '#eval' do
     end
   end
 
+  context 'constants' do
+    it 'stores a single constant' do
+      MVinl.eval('!N 50')
+      expect(MVinl::Context::CONSTANTS[:N]).to be_truthy
+    end
+    it 'evaluates a single constant' do
+      result = MVinl.eval('x N')
+      expect(result).to eq({ x: [[50], {}] })
+    end
+  end
+
   context 'functions' do
     it 'stores function definition with \'+\' OPER and no arguments' do
       MVinl.eval('def (f (+ 1))')
