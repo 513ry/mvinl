@@ -41,7 +41,8 @@ module MVinl::REPL
     load_history
 
     while (input = Readline.readline("#{PS1} ", true))
-      if Readline::HISTORY.size > 1 && Readline::HISTORY[-1] == Readline::HISTORY[-2]
+      if Readline::HISTORY.size > 1 && Readline::HISTORY[-1] == Readline::HISTORY[-2] ||
+         input.strip.empty?
         Readline::HISTORY.pop
       end
 
