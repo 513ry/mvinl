@@ -13,6 +13,7 @@ rule
     : /* empty */                                    { Hash.new }
     | program group                                  { val[0].merge(val[1]) }
     | program properties                             { val[0].merge(val[1]) }
+    | program constant_def                           { val[0] }
     | program variable_def                           { val[0] }
     | program function_def                           { val[0] }
     | program EOS                                    { val[0] }
@@ -26,6 +27,21 @@ rule
     ;
   var_def_name
     : VARIABLE                                       { @context.state[:in_var] = true; val[0].to_sym }
+    ;
+  constant_def
+    : const_def_name super_value
+      {
+	if (res = @context.define_constant(val[0], val[1])) == nil
+	  raise(MVinl::ParserError, "Trying to define a reserved word '#{val[0]}' as a constant")
+	elsif (res == false)
+	  raise(MVinl::ParserError, "Can't overwrite a constant #{val[0]}")
+	else
+          res
+        end
+      }
+    ;
+  const_def_name
+    : CONSTANT                                       { @context.state[:in_var] = true; val[0].to_sym }
     ;
   group
     : GROUP properties                               { {val[0].to_sym => create_group(val[1])} }
@@ -69,6 +85,7 @@ rule
   super_value
     : value                                          { val[0] }
     | lambda                                         { val[0] }
+    | CONSTANT_CALL                                  { MVinl::Context::CONSTANTS[val[0]] }
     | VARIABLE_CALL                                  { @context.variables[val[0]] }
     ;
   value
@@ -105,7 +122,8 @@ rule
     : /* empty */                                    { Array.new }
     | args identifier                                { val[0] << val[1] }
     | args value                                     { val[0] << val[1] }
-    | args VARIABLE_CALL                             { val[0] << { eval: val[1] } }
+    | args CONSTANT_CALL                             { val[0] << { con: val[1] } }
+    | args VARIABLE_CALL                             { val[0] << { var: val[1] } }
     | args polish_notation_def                       { val[0] << val[1] }
     ;
   params
@@ -136,6 +154,10 @@ end
     properties ||  Hash.new
   end
 
+  def evaluate_const(const_name)
+    MVinl::Context::CONSTANTS[const_name]
+  end
+
   def evaluate_var(var_name)
     @context.variables[var_name]
   end
@@ -162,7 +184,7 @@ end
       # Evaluate variables
       function.map! do |e|
         if e.is_a? Hash
-          evaluate_var e[:eval]
+	  e[:var] ? evaluate_var(e[:var]) : evaluate_const(e[:con])
 	else
 	  e
 	end

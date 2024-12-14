@@ -1,11 +1,14 @@
 # frozen-string-literal: true
 
+require 'pry'
+
 module MVinl
   # Lexer and parser shared context
   class Context
     attr_accessor :variables, :functions, :state
 
     RESERVED = %I[def]
+    CONSTANTS = {}
 
     def initialize
       reset
@@ -28,9 +31,20 @@ module MVinl
       @functions[name] = { args: args, body: body }
     end
 
+    def define_constant(name, value)
+      if RESERVED.include? name
+        nil
+      elsif CONSTANTS[name]
+        false
+      else
+        @state[:in_var] = false
+        CONSTANTS[name] = value
+      end
+    end
+
     def define_variable(name, value)
       if RESERVED.include? name
-        false
+        nil
       else
         @state[:in_var] = false
         @variables[name] = value

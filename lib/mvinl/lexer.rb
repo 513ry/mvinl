@@ -25,6 +25,7 @@ module MVinl
       KEYWORD_ARG: /(#{ID_REGEX}):/,
       ID: ID_REGEX,
       GROUP: /@(#{ID_REGEX})/,
+      CONSTANT: /!([A-Z][A-Z0-9_]*)/,
       VARIABLE: /!(#{ID_REGEX})/,
       FLOAT: /[+-]?\d+\.\d+/,
       NUMBER: /[+-]?\d+/,
@@ -52,6 +53,9 @@ module MVinl
       return process_eos if @ss.eos?
 
       # Check if variable name been used
+      MVinl::Context::CONSTANTS.each_key do |const_name|
+        return [:CONSTANT_CALL, const_name] if @ss.scan(/\A#{Regexp.escape const_name.to_s}\b/)
+      end
       @context.variables.each_key do |var_name|
         return [:VARIABLE_CALL, var_name] if @ss.scan(/\A#{Regexp.escape var_name.to_s}\b/)
       end
@@ -108,6 +112,7 @@ module MVinl
 
         @in_group = true
         [:GROUP, @ss[1]]
+      when :CONSTANT then [:CONSTANT, @ss[1]]
       when :VARIABLE then [:VARIABLE, @ss[1]]
       when :ID then [:ID, @ss.matched]
       when :NUMBER, :FLOAT, :STRING, :SYMBOL, :MULTILINE_STRING
