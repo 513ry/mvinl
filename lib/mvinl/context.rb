@@ -1,7 +1,5 @@
 # frozen-string-literal: true
 
-require 'pry'
-
 module MVinl
   # Lexer and parser shared context
   class Context
