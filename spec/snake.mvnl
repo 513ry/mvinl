@@ -1,0 +1,4 @@
+@game
+  Player
+  Map data_file: '../data/level_1.map'
+  

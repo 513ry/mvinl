@@ -30,7 +30,7 @@ module MVinl
       FLOAT: /[+-]?\d+\.\d+/,
       NUMBER: /[+-]?\d+/,
       MULTILINE_STRING: /"((?:\\.|[^"\\])*)"\s*\\\s*/,
-      STRING: /"((?:\\.|[^"\\])*)"/,
+      STRING: /["']((?:\\.|[^"\\])*)["']/,
       SYMBOL: /:(#{ID_REGEX})/,
       COMMENT: /#/,
       OPER: %r{[+\-*/%]},
