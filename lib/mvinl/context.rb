@@ -1,5 +1,11 @@
 # frozen-string-literal: true
 
+=begin context.rb
+Copyright (c) 2024, Daniel Sierpiński All rights reserved.
+
+See Copyright Notice in mvnil.rb
+=end
+
 module MVinl
   # Lexer and parser shared context
   class Context
